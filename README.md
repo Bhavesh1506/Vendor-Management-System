@@ -1,23 +1,39 @@
-# 🥛 Dairy & Grocery Vendor Management System
+# 🥛 Vendor Management System
 
-A complete MVP for managing dairy and grocery vendor operations including customer management, transaction tracking, bill generation, and WhatsApp notifications (mocked for local development).
+A comprehensive dairy and grocery vendor management system built with React Native (Expo Web) and Firebase. Track customers, manage daily transactions, generate monthly bills, and send notifications - all in a modern, user-friendly interface.
+
+## 🚀 Live Demo
+
+**Try it now:** [https://vendor-management-system-f6278.web.app](https://vendor-management-system-f6278.web.app)
+
+### Quick Start (Live App)
+1. Visit the live URL above
+2. Choose one of these options:
+   - **Create your own account**: Click "New user? Create Account" → Enter email/password → Create Account
+   - **Use demo data**: Click "Seed Database (Demo)" → Login with `vendor@test.com` / `test123`
+3. Start managing your vendor business!
+
+> **Note**: The live app uses production Firebase - all data is real and persistent!
+
+---
 
 ## 📋 Features
 
 - **Vendor Authentication**: Email/password login with Firebase Auth
+- **User Signup**: Create new accounts with automatic vendor profile setup
 - **Customer Management**: Add, view, and manage customers with contact details
 - **Transaction Tracking**: Record daily sales transactions with date and amount
-- **Bill Generation**: Automatically calculate monthly bills from unpaid transactions via Cloud Function
-- **WhatsApp Mock**: Simulate sending bills via WhatsApp (logs to console and Firestore)
+- **Bill Generation**: Automatically calculate monthly bills from unpaid transactions (client-side)
+- **WhatsApp Mock**: Simulate sending bills via WhatsApp (logs message and saves to Firestore)
 - **Dashboard**: View total sales summary and quick navigation
 - **Database Seeding**: One-click demo data creation for testing
 
 ## 🛠️ Tech Stack
 
 - **Frontend**: React Native (Expo) - Web version
-- **Backend**: Firebase Cloud Functions
 - **Database**: Firebase Firestore
 - **Authentication**: Firebase Auth
+- **Hosting**: Firebase Hosting
 - **Local Development**: Firebase Emulator Suite
 
 ## 📁 Project Structure
@@ -38,10 +54,8 @@ vendor-management-system/
 │   │       └── seedData.js       # Database seeding
 │   ├── App.js
 │   └── package.json
-├── functions/                    # Firebase Cloud Functions
-│   ├── src/
-│   │   └── index.js             # generateBill & sendWhatsApp functions
-│   └── package.json
+├── functions/                    # Firebase Cloud Functions (legacy)
+│   └── src/index.js
 ├── firebase.json                 # Firebase config
 ├── firestore.rules              # Security rules
 └── README.md
@@ -52,47 +66,50 @@ vendor-management-system/
 Before you begin, ensure you have the following installed:
 
 - **Node.js** (v18 or higher) - [Download](https://nodejs.org/)
-- **Firebase CLI** - Install with: `npm install -g firebase-tools`
+- **Firebase CLI** (for local development) - Install with: `npm install -g firebase-tools`
 - **Git** (optional but recommended)
 
-## 🚀 Installation & Setup
+## 🚀 Local Development Setup
 
-### Step 1: Install Dependencies
+### Step 1: Clone the Repository
+
+```bash
+git clone https://github.com/Bhavesh1506/vendor-management-system.git
+cd vendor-management-system
+```
+
+### Step 2: Install Dependencies
 
 ```powershell
-# Navigate to project root
-cd vendor-management-system
-
-# Install Cloud Functions dependencies
-cd functions
-npm install
-cd ..
-
 # Install App dependencies
 cd app
 npm install
 cd ..
+
+# Install Functions dependencies (optional - for local emulator testing)
+cd functions
+npm install
+cd ..
 ```
 
-### Step 2: Start Firebase Emulator Suite
+### Step 3: Start Firebase Emulator Suite (Optional)
 
-Open a terminal in the project root and run:
+If you want to test locally with emulators instead of production Firebase:
 
 ```powershell
-firebase emulators:start
+firebase emulators:start --only firestore,auth
 ```
 
 This will start:
 - 🔥 Firestore Emulator on `localhost:8080`
 - 🔐 Auth Emulator on `localhost:9099`
-- ⚡ Functions Emulator on `localhost:5001`
 - 🎛️ Emulator UI on `localhost:4000`
 
 **Keep this terminal running!**
 
-### Step 3: Start Expo Web (in a new terminal)
+### Step 4: Start Expo Web
 
-Open a **new terminal window/tab** and run:
+Open a **new terminal** and run:
 
 ```powershell
 cd app
@@ -101,30 +118,26 @@ npm start
 
 When prompted, press **`w`** to open in web browser.
 
-The app will open at `http://localhost:8081` (or similar).
-
 ## 📱 Using the Application
 
-### First Time Setup: Seed the Database
+### Option 1: Use the Live App (Recommended)
 
-1. On the login screen, click **"🌱 Seed Database (Demo)"**
-2. Wait for the success message
-3. The form will auto-fill with credentials:
-   - **Email**: `vendor@test.com`
-   - **Password**: `test123`
+Simply visit [https://vendor-management-system-f6278.web.app](https://vendor-management-system-f6278.web.app) - no setup required!
 
-### Login
+### Option 2: Create Your Own Account
 
-Click **"Login"** to access the vendor dashboard.
+1. Click **"New user? Create Account"**
+2. Enter your email and password
+3. Click **"Create Account"**
+4. Login and start adding customers and transactions
 
-### Demo Data Created
+### Option 3: Use Demo Data
 
-The seeding creates:
-- ✅ 1 Vendor account
-- ✅ 2 Customers (Rajesh Kumar, Priya Sharma)
-- ✅ 5 Transactions across both customers (current month)
+1. Click **"🌱 Seed Database (Demo)"**
+2. Login with: `vendor@test.com` / `test123`
+3. Explore pre-populated data
 
-### Using the App
+### Application Features
 
 1. **Dashboard**: View total sales and navigate to features
 2. **Customers**: 
@@ -137,25 +150,12 @@ The seeding creates:
    - See unpaid amount summary
 4. **Generate Bill**:
    - Click "📊 Generate Bill" to create a monthly bill
-   - Cloud Function calculates total unpaid transactions
+   - Automatically calculates total unpaid transactions
    - Marks transactions as paid
 5. **Send WhatsApp Mock**:
    - Click "📱 Send via WhatsApp"
-   - Check browser console for mock message
-   - Check Firestore UI at `localhost:4000` to see notification document
-
-## 🔍 Viewing Data in Firebase Emulator
-
-1. Open your browser to `http://localhost:4000`
-2. Navigate to **Firestore** tab
-3. Explore the data structure:
-   ```
-   vendors/{vendorId}
-   vendors/{vendorId}/customers/{customerId}
-   vendors/{vendorId}/transactions/{transactionId}
-   vendors/{vendorId}/bills/{billId}
-   vendors/{vendorId}/notifications/{notificationId}
-   ```
+   - View mock message in browser alert
+   - Check Firestore for notification document
 
 ## 📊 Data Model
 
@@ -163,7 +163,7 @@ The seeding creates:
 ```javascript
 {
   email: string,
-  name: string,
+  businessName: string,
   createdAt: timestamp
 }
 ```
@@ -218,37 +218,6 @@ The seeding creates:
 }
 ```
 
-## ⚙️ Cloud Functions
-
-### `generateBill`
-**Callable Function**
-- **Input**: `{ vendorId, customerId }`
-- **Logic**: Queries unpaid transactions for current month, creates bill, marks transactions as paid
-- **Returns**: `{ billId, totalAmount, transactionCount, customerName }`
-
-### `sendWhatsApp`
-**Callable Function** (Mock Implementation)
-- **Input**: `{ vendorId, billId }`
-- **Logic**: Fetches bill data, logs to console, creates notification document
-- **Returns**: `{ success: true, message, notificationId, phoneNumber }`
-
-## 🧪 Testing the Complete Flow
-
-1. **Login** with `vendor@test.com` / `test123`
-2. Navigate to **Customers**
-3. Click on **"Rajesh Kumar"**
-4. Verify you see 3 transactions (all unpaid)
-5. Click **"📊 Generate Bill"**
-6. Verify:
-   - Success alert shows bill details
-   - Transactions now show "PAID" badge
-   - Bill document created in Firestore (check emulator UI)
-7. Click **"📱 Send via WhatsApp"**
-8. Verify:
-   - Success alert appears
-   - Console shows mock message
-   - Notification document in Firestore
-
 ## 🎨 UI Design
 
 The app features a **modern, premium dark theme** with:
@@ -258,49 +227,68 @@ The app features a **modern, premium dark theme** with:
 - 🎯 Clean, card-based layouts
 - 📱 Responsive design (works on mobile and desktop)
 
-## 🐛 Troubleshooting
+## 🐛 Known Limitations
 
-### Firebase Emulator won't start
-- Make sure no other process is using ports 4000, 5001, 8080, or 9099
-- Try: `firebase emulators:start --only firestore,auth,functions`
+### Scrolling on Web
+The transactions list may not scroll properly on some web browsers due to React Native Web limitations.
 
-### Expo won't connect to emulators
-- Ensure emulators are running **before** starting Expo
-- Check that `localhost` URLs are correct in `src/services/firebase.js`
-- For web, `localhost` works fine
-- For mobile, you may need to use your computer's IP address
+**Workaround**: Run this in browser console if needed:
+```javascript
+document.querySelector('[data-focusable="true"]').style.height = '100vh';
+document.querySelector('[data-focusable="true"]').style.overflow = 'auto';
+```
 
-### "Seeding already done" error
-- The vendor email already exists in Auth emulator
-- Restart emulators to clear data: `Ctrl+C` then `firebase emulators:start` again
+**Note**: This would be resolved by deploying as a native mobile app (Android/iOS).
 
-### Transactions not showing in bill
-- Bills only include **unpaid** transactions from the **current month**
-- Check transaction dates are within current month
-- Verify `isPaid: false` in Firestore
+## 🔐 Security Notes
 
-## 📝 Notes
+**Current Setup**: Database is in "test mode" for easy development access.
 
-- **This is a student project** - Not production-ready
-- **WhatsApp is mocked** - No actual messages are sent
-- **No real API keys required** - Everything runs locally
-- **Data persists** only while emulators are running
-- For production, you'd need:
-  - Real Firebase project
-  - WhatsApp Business API integration
-  - Proper security rules
-  - Error handling improvements
+**For Production**: Update Firestore security rules in Firebase Console:
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /vendors/{vendorId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == vendorId;
+    }
+  }
+}
+```
+
+## 🚢 Deployment
+
+The app is automatically deployed to Firebase Hosting. To deploy updates:
+
+```powershell
+# Build the web version
+cd app
+npx expo export -p web
+
+# Deploy to Firebase
+cd ..
+firebase deploy --only hosting
+```
+
+Your changes will be live at: https://vendor-management-system-f6278.web.app
 
 ## 🎓 Learning Objectives
 
 This project demonstrates:
-- ✅ Firebase Authentication with emulators
+- ✅ Firebase Authentication with signup/login
 - ✅ Firestore database design and queries
-- ✅ Cloud Functions (callable functions)
+- ✅ Client-side business logic (bill generation)
 - ✅ React Native navigation
 - ✅ State management in React
 - ✅ Modern UI/UX design
+- ✅ Firebase Hosting deployment
 - ✅ Full-stack integration
+
+## 📝 Project Links
+
+- **Live App**: https://vendor-management-system-f6278.web.app
+- **GitHub Repository**: https://github.com/Bhavesh1506/vendor-management-system
+- **Firebase Console**: https://console.firebase.google.com/project/vendor-management-system-f6278
 
 ## 📄 License
 
@@ -308,6 +296,6 @@ This is a student project for educational purposes.
 
 ---
 
-**Built with ❤️ for learning Firebase + React Native**
+**Built with ❤️ using React Native + Firebase**
 
-Need help? Check the Firebase Emulator UI at `http://localhost:4000` to inspect your data!
+Questions? Check the [deployment guide](./deployment-guide.md) for more details!

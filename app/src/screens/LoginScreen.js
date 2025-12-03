@@ -5,11 +5,11 @@ import {
   TextInput, 
   TouchableOpacity, 
   StyleSheet, 
-  Alert,
   ActivityIndicator 
 } from 'react-native';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../services/firebase';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../services/firebase';
 import { seedDatabase } from '../utils/seedData';
 
 export default function LoginScreen({ navigation }) {
@@ -17,20 +17,36 @@ export default function LoginScreen({ navigation }) {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [seeding, setSeeding] = useState(false);
+  const [isSignup, setIsSignup] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please enter email and password');
+      window.alert('Please enter email and password');
       return;
     }
 
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      if (isSignup) {
+        // Create new account
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        
+        // Create vendor document for this user
+        await setDoc(doc(db, 'vendors', userCredential.user.uid), {
+          email: email,
+          createdAt: new Date(),
+          businessName: 'My Dairy Business'
+        });
+        
+        window.alert('Account created successfully! You can now use the app.');
+      } else {
+        // Login existing user
+        await signInWithEmailAndPassword(auth, email, password);
+      }
       // Navigation will be handled by auth state listener
     } catch (error) {
-      console.error('Login error:', error);
-      Alert.alert('Login Failed', error.message);
+      console.error('Auth error:', error);
+      window.alert((isSignup ? 'Signup' : 'Login') + ' Failed: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -41,25 +57,15 @@ export default function LoginScreen({ navigation }) {
     try {
       const result = await seedDatabase();
       if (result.success) {
-        Alert.alert(
-          'Success!', 
-          result.message + '\n\nEmail: vendor@test.com\nPassword: test123',
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                setEmail('vendor@test.com');
-                setPassword('test123');
-              }
-            }
-          ]
-        );
+        window.alert(result.message + '\n\nEmail: vendor@test.com\nPassword: test123');
+        setEmail('vendor@test.com');
+        setPassword('test123');
       } else {
-        Alert.alert('Info', result.message);
+        window.alert(result.message);
       }
     } catch (error) {
       console.error('Seeding error:', error);
-      Alert.alert('Error', 'Failed to seed database: ' + error.message);
+      window.alert('Failed to seed database: ' + error.message);
     } finally {
       setSeeding(false);
     }
@@ -106,8 +112,17 @@ export default function LoginScreen({ navigation }) {
           {loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.buttonText}>Login</Text>
+            <Text style={styles.buttonText}>{isSignup ? 'Create Account' : 'Login'}</Text>
           )}
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.toggleButton}
+          onPress={() => setIsSignup(!isSignup)}
+        >
+          <Text style={styles.toggleButtonText}>
+            {isSignup ? 'Already have an account? Login' : 'New user? Create Account'}
+          </Text>
         </TouchableOpacity>
 
         <View style={styles.divider}>
@@ -205,6 +220,16 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  toggleButton: {
+    marginTop: 16,
+    padding: 12,
+    alignItems: 'center',
+  },
+  toggleButtonText: {
+    color: '#6366f1',
+    fontSize: 14,
+    fontWeight: '600',
   },
   divider: {
     flexDirection: 'row',
