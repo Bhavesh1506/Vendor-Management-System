@@ -290,12 +290,3 @@ This project demonstrates:
 - **GitHub Repository**: https://github.com/Bhavesh1506/vendor-management-system
 - **Firebase Console**: https://console.firebase.google.com/project/vendor-management-system-f6278
 
-## 📄 License
-
-This is a student project for educational purposes.
-
----
-
-**Built with ❤️ using React Native + Firebase**
-
-Questions? Check the [deployment guide](./deployment-guide.md) for more details!
